@@ -1,5 +1,5 @@
 export const bio = [
-  "Hello! I'm Vinay Somawat, an experienced Frontend Software Engineer with a proven ability to upgrade applications, optimize performance, and deliver innovative solutions.",
+  "Hello! I'm Joy Rana, an experienced Frontend Software Engineer with a proven ability to upgrade applications, optimize performance, and deliver innovative solutions.",
   "I am passionate about using my technical skills to drive impactful contributions in challenging projects.",
   "Thanks for visiting!",
 ];
@@ -301,7 +301,7 @@ export const footer = [
   {
     label: "copyright-text",
     data: [
-      "Made with &hearts; by Vinay Somawat.",
+      "Made with &hearts; by Joy Rana.",
       "&copy; No Copyrights. Feel free to use this template.",
     ],
   },
