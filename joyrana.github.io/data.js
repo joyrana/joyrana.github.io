@@ -1,7 +1,5 @@
 export const bio = [
-  "Hello! I'm Joy Rana, an experienced Frontend Software Engineer with a proven ability to upgrade applications, optimize performance, and deliver innovative solutions.",
-  "I am passionate about using my technical skills to drive impactful contributions in challenging projects.",
-  "Thanks for visiting!",
+  "My name is Joy Rana. I'm a programmer, teacher, and an upcoming speaker. I work for Citi as an Assistant Vice President, Technology. I work on JavaScript, Open Source, and Artificial Intelligence, but posts on this portal are my own. I do blog about technology, gadgets, code, the web, where we’re going. I'm excited about machine learning, artificial intelligence and the open web.",
 ];
 
 export const skills = [
