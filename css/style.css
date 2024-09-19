@@ -1853,7 +1853,7 @@ body.offcanvas .colorlib-nav-toggle {
 	*display: inline;
 	width: 30px;
 	height: 2px;
-	background-color: #000;
+	background-color: aqua;
 	font: bold 14px/0.4 Helvetica;
 	text-transform: uppercase;
 	text-indent: -55px;
@@ -1866,7 +1866,7 @@ body.offcanvas .colorlib-nav-toggle {
 	content: "";
 	width: 30px;
 	height: 2px;
-	background-color: #000;
+	background-color: aqua;
 	position: absolute;
 	left: 0;
 	-webkit-transition: 0.2s;
