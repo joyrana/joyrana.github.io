@@ -1,4 +1,56 @@
-/* Page-level base only; component styling lives in Fluent makeStyles. */
+/*
+ * Design language: Fluent 2 "Mica & Acrylic", dark-first.
+ * Fluent supplies type, colour ramps, controls and motion through its theme tokens;
+ * these variables add the material layer (base, glows, translucent surfaces,
+ * hairlines and the accent gradient) for each theme. Components read them via var().
+ */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page-bg: #0b0b0d;
+  --glow-a: rgba(15, 108, 189, 0.32);
+  --glow-b: rgba(113, 96, 232, 0.22);
+  --grid-line: rgba(255, 255, 255, 0.035);
+  --surface: rgba(255, 255, 255, 0.035);
+  --surface-strong: rgba(255, 255, 255, 0.06);
+  --surface-nav: rgba(16, 16, 19, 0.62);
+  --hairline: rgba(255, 255, 255, 0.08);
+  --hairline-strong: rgba(98, 171, 245, 0.45);
+  --highlight: rgba(255, 255, 255, 0.07);
+  --elevation: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 40px rgba(0, 0, 0, 0.35);
+  --elevation-hover: 0 1px 2px rgba(0, 0, 0, 0.4), 0 20px 56px rgba(0, 0, 0, 0.5);
+  --accent-a: #62abf5;
+  --accent-b: #a99bf7;
+  --overlay: rgba(11, 11, 13, 0.78);
+  --cta-bg:
+    radial-gradient(120% 140% at 0% 0%, rgba(98, 171, 245, 0.35) 0, transparent 55%),
+    linear-gradient(135deg, #0a3a66 0%, #15357a 55%, #3a2a86 100%);
+  --page-fg: #ffffff;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --page-bg: #f7f8fa;
+  --glow-a: rgba(15, 108, 189, 0.16);
+  --glow-b: rgba(113, 96, 232, 0.12);
+  --grid-line: rgba(0, 0, 0, 0.035);
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-strong: rgba(255, 255, 255, 0.9);
+  --surface-nav: rgba(247, 248, 250, 0.72);
+  --hairline: rgba(0, 0, 0, 0.07);
+  --hairline-strong: rgba(15, 108, 189, 0.4);
+  --highlight: rgba(255, 255, 255, 0.95);
+  --elevation: 0 1px 2px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(17, 24, 39, 0.07);
+  --elevation-hover: 0 1px 2px rgba(0, 0, 0, 0.06), 0 20px 48px rgba(17, 24, 39, 0.12);
+  --accent-a: #0f6cbd;
+  --accent-b: #6a4fd9;
+  --overlay: rgba(255, 255, 255, 0.82);
+  --cta-bg:
+    radial-gradient(120% 140% at 0% 0%, rgba(150, 198, 250, 0.45) 0, transparent 55%),
+    linear-gradient(135deg, #0f548c 0%, #0f6cbd 55%, #5b4bd1 100%);
+  --page-fg: #242424;
+}
+
 *,
 *::before,
 *::after {
@@ -7,25 +59,51 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 24px;
+  scroll-padding-top: 96px;
+  background: var(--page-bg);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
+  position: relative;
   font-family: "Segoe UI Variable Text", "Segoe UI", "Segoe UI Web (West European)", -apple-system,
     BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
-  color: #242424;
-  /* Fluent neutral background with a soft brand glow, in place of the old warm gradient */
+  color: var(--page-fg);
   background:
-    radial-gradient(circle at top left, #cfe4fa 0, transparent 45%),
-    radial-gradient(circle at 30% 20%, #ebf3fc 0, transparent 55%),
-    linear-gradient(140deg, #fafafa, #f5f5f5 50%, #f0f0f0);
+    radial-gradient(60% 50% at 10% -5%, var(--glow-a) 0, transparent 70%),
+    radial-gradient(45% 40% at 95% 5%, var(--glow-b) 0, transparent 70%),
+    var(--page-bg);
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Faint engineering grid, faded out toward the bottom of the first screen */
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1100px;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(80% 70% at 50% 0%, #000 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(80% 70% at 50% 0%, #000 30%, transparent 100%);
+}
+
+::selection {
+  background: rgba(98, 171, 245, 0.35);
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
   }
 }
