@@ -1,0 +1,22 @@
+{
+  "name": "joyrana-site",
+  "private": true,
+  "version": "2.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "deploy": "next build && node scripts/publish.mjs"
+  },
+  "dependencies": {
+    "@fluentui/react-components": "^9.75.0",
+    "@fluentui/react-icons": "^2.0.345",
+    "next": "^15.5.28",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "typescript": "^6.0.3"
+  }
+}

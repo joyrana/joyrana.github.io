@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[581],{7086:(l,e,s)=>{s.d(e,{lwq:()=>a});let a=(0,s(4841).U)("Play20Filled","20",["M17.22 8.68a1.5 1.5 0 0 1 0 2.63l-10 5.5A1.5 1.5 0 0 1 5 15.5v-11A1.5 1.5 0 0 1 7.22 3.2z"])}}]);
