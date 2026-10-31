@@ -1,0 +1,26 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0A2E4A" />
+      <stop offset="55%" stop-color="#0F548C" />
+      <stop offset="100%" stop-color="#3D3A9E" />
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(280 180) scale(520)">
+      <stop stop-color="#62ABF5" stop-opacity="0.55" />
+      <stop offset="1" stop-color="#62ABF5" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)" />
+  <rect width="1200" height="675" fill="url(#glow)" />
+  <rect x="72" y="72" width="1056" height="531" rx="16" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.18)" />
+  <g fill="#FFFFFF" font-family="'Segoe UI Variable Display', 'Segoe UI', Selawik, -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif">
+    <text x="130" y="270" font-size="64" font-weight="600">Joy Rana</text>
+    <text x="130" y="338" font-size="28" fill="#CFE4FA">AI · Machine Learning · Distributed Systems</text>
+    <text x="130" y="382" font-size="22" fill="#96C6FA">Articles &amp; Videos</text>
+  </g>
+  <g fill="#96C6FA" opacity="0.55">
+    <circle cx="930" cy="210" r="110" />
+    <circle cx="1000" cy="420" r="60" />
+    <circle cx="850" cy="470" r="40" />
+  </g>
+</svg>

@@ -1,0 +1,31 @@
+/* Page-level base only; component styling lives in Fluent makeStyles. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 24px;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI Variable Text", "Segoe UI", "Segoe UI Web (West European)", -apple-system,
+    BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+  color: #242424;
+  /* Fluent neutral background with a soft brand glow, in place of the old warm gradient */
+  background:
+    radial-gradient(circle at top left, #cfe4fa 0, transparent 45%),
+    radial-gradient(circle at 30% 20%, #ebf3fc 0, transparent 55%),
+    linear-gradient(140deg, #fafafa, #f5f5f5 50%, #f0f0f0);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
