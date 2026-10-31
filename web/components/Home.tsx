@@ -11,19 +11,28 @@ import {
   CardPreview,
   Link,
   Text,
+  Tooltip,
   makeStyles,
   mergeClasses,
   shorthands,
   tokens,
 } from "@fluentui/react-components";
 import {
+  AppsAddIn24Regular,
   ArrowRight16Regular,
+  ArrowTrendingLines24Regular,
   ArrowUpRight16Regular,
+  BrainCircuit24Regular,
+  BranchFork24Regular,
   Checkmark16Regular,
-  Code24Filled,
+  LockClosed12Regular,
   Play20Filled,
+  PlugConnected24Regular,
+  WeatherMoon20Regular,
+  WeatherSunny20Regular,
 } from "@fluentui/react-icons";
 import { SafeImage } from "./SafeImage";
+import { useThemeMode } from "./Providers";
 import {
   about,
   contact,
@@ -40,106 +49,192 @@ import {
   videos,
   videosSection,
   writing,
+  type Project,
 } from "../content/site";
 
 const ext = { target: "_blank", rel: "noreferrer" } as const;
 
+const PROJECT_ICONS: Record<Project["icon"], React.ReactElement> = {
+  api: <PlugConnected24Regular />,
+  fix: <ArrowTrendingLines24Regular />,
+  apps: <AppsAddIn24Regular />,
+  sdlc: <BranchFork24Regular />,
+  model: <BrainCircuit24Regular />,
+};
+
+/** The hero headline's closing clause is rendered with the accent gradient. */
+const ACCENT_PHRASE = "clear explanations of complex technology.";
+
+// Acrylic surface shared by every card: translucent fill, blur, hairline, top highlight.
+const acrylic = {
+  backgroundColor: "var(--surface)",
+  backdropFilter: "blur(18px) saturate(140%)",
+  WebkitBackdropFilter: "blur(18px) saturate(140%)",
+  ...shorthands.border("1px", "solid", "var(--hairline)"),
+  boxShadow: "inset 0 1px 0 var(--highlight), var(--elevation)",
+} as const;
+
+const lift = {
+  transitionProperty: "transform, box-shadow, border-color",
+  transitionDuration: tokens.durationNormal,
+  transitionTimingFunction: tokens.curveDecelerateMid,
+  ":hover": {
+    transform: "translateY(-3px)",
+    boxShadow: "inset 0 1px 0 var(--highlight), var(--elevation-hover)",
+    ...shorthands.borderColor("var(--hairline-strong)"),
+  },
+} as const;
+
+const gradientText = {
+  backgroundImage: "linear-gradient(90deg, var(--accent-a), var(--accent-b))",
+  WebkitBackgroundClip: "text",
+  backgroundClip: "text",
+  color: "transparent",
+} as const;
+
 const useStyles = makeStyles({
-  // ---- page shell (same rhythm as before) ---------------------------------
+  // ---- page shell -------------------------------------------------------------
   page: {
+    position: "relative",
     display: "flex",
     flexDirection: "column",
-    gap: "96px",
-    padding: "32px 6vw 64px",
-    maxWidth: "1440px",
+    gap: "112px",
+    padding: "20px 6vw 64px",
+    maxWidth: "1360px",
     margin: "0 auto",
-    "@media (max-width: 640px)": { gap: "72px", padding: "24px 5vw 48px" },
+    "@media (max-width: 640px)": { gap: "80px", padding: "16px 5vw 48px" },
   },
   hero: { display: "flex", flexDirection: "column", gap: "72px" },
 
-  // ---- nav ------------------------------------------------------------------
+  // ---- nav: sticky acrylic bar ------------------------------------------------
   nav: {
+    position: "sticky",
+    top: "16px",
+    zIndex: 10,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     gap: "24px",
-    "@media (max-width: 900px)": { flexDirection: "column", alignItems: "flex-start" },
+    padding: "10px 12px 10px 20px",
+    borderRadius: tokens.borderRadiusCircular,
+    backgroundColor: "var(--surface-nav)",
+    backdropFilter: "blur(20px) saturate(160%)",
+    WebkitBackdropFilter: "blur(20px) saturate(160%)",
+    ...shorthands.border("1px", "solid", "var(--hairline)"),
+    boxShadow: "inset 0 1px 0 var(--highlight), var(--elevation)",
+    "@media (max-width: 900px)": {
+      position: "static",
+      flexDirection: "column",
+      alignItems: "flex-start",
+      borderRadius: tokens.borderRadiusXLarge,
+      padding: "16px",
+    },
   },
   logo: {
-    fontSize: tokens.fontSizeBase600,
-    lineHeight: tokens.lineHeightBase600,
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "10px",
+    fontSize: tokens.fontSizeBase500,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
-    letterSpacing: "-0.2px",
+    letterSpacing: "-0.01em",
   },
-  navLinks: { display: "flex", alignItems: "center", flexWrap: "wrap", gap: "4px" },
+  logoMark: {
+    width: "28px",
+    height: "28px",
+    borderRadius: tokens.borderRadiusLarge,
+    display: "grid",
+    placeItems: "center",
+    fontSize: tokens.fontSizeBase200,
+    fontWeight: tokens.fontWeightBold,
+    color: "#fff",
+    backgroundImage: "linear-gradient(135deg, #0F6CBD, #5B4BD1)",
+    boxShadow: "0 4px 14px rgba(15,108,189,0.45)",
+  },
+  navLinks: { display: "flex", alignItems: "center", flexWrap: "wrap", gap: "2px" },
   navLink: { color: tokens.colorNeutralForeground2, fontWeight: tokens.fontWeightRegular },
 
-  // ---- hero -----------------------------------------------------------------
-  heroContent: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-    gap: "40px",
-    alignItems: "center",
-  },
+  // ---- type ---------------------------------------------------------------------
   eyebrow: {
-    display: "block",
+    display: "inline-block",
     textTransform: "uppercase",
-    letterSpacing: "0.2em",
+    letterSpacing: "0.18em",
     fontSize: tokens.fontSizeBase200,
     fontWeight: tokens.fontWeightSemibold,
-    color: tokens.colorBrandForeground1,
-    marginBottom: "16px",
+    margin: "0 0 16px",
+    ...gradientText,
   },
   h1: {
-    fontSize: "clamp(2.5rem, 2vw + 2rem, 4rem)",
+    fontFamily: "'Segoe UI Variable Display', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif",
+    fontSize: "clamp(2.6rem, 2.4vw + 2rem, 4.25rem)",
+    lineHeight: 1.04,
+    fontWeight: tokens.fontWeightSemibold,
+    letterSpacing: "-0.035em",
+    color: tokens.colorNeutralForeground1,
+    margin: "0 0 22px",
+    textWrap: "balance",
+  },
+  accent: gradientText,
+  h2: {
+    fontFamily: "'Segoe UI Variable Display', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif",
+    fontSize: "clamp(2rem, 1.5vw + 1.5rem, 3rem)",
     lineHeight: 1.1,
     fontWeight: tokens.fontWeightSemibold,
-    letterSpacing: "-0.02em",
+    letterSpacing: "-0.025em",
     color: tokens.colorNeutralForeground1,
-    margin: "0 0 18px",
-  },
-  h2: {
-    fontSize: "clamp(2rem, 1.5vw + 1.5rem, 3rem)",
-    lineHeight: 1.15,
-    fontWeight: tokens.fontWeightSemibold,
-    letterSpacing: "-0.015em",
-    color: tokens.colorNeutralForeground1,
-    margin: "0 0 12px",
+    margin: 0,
   },
   h3: {
     fontSize: tokens.fontSizeBase500,
     lineHeight: tokens.lineHeightBase500,
     fontWeight: tokens.fontWeightSemibold,
+    letterSpacing: "-0.01em",
     color: tokens.colorNeutralForeground1,
     margin: 0,
   },
   subhead: {
     display: "block",
     fontSize: tokens.fontSizeBase400,
-    lineHeight: tokens.lineHeightBase400,
+    lineHeight: "1.6",
     color: tokens.colorNeutralForeground3,
-    margin: "0 0 24px",
-    maxWidth: "560px",
+    margin: "0 0 28px",
+    maxWidth: "580px",
+  },
+  muted: { color: tokens.colorNeutralForeground3, margin: 0 },
+  block: { width: "100%" },
+
+  // ---- hero ----------------------------------------------------------------------
+  heroContent: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+    gap: "56px",
+    alignItems: "center",
   },
   actions: {
     display: "flex",
     flexWrap: "wrap",
     gap: "12px",
-    marginBottom: "28px",
+    marginBottom: "36px",
     "@media (max-width: 640px)": { flexDirection: "column", alignItems: "flex-start" },
+  },
+  glowBtn: { boxShadow: "0 8px 24px rgba(15,108,189,0.35)" },
+  ghostBtn: {
+    backgroundColor: "var(--surface)",
+    backdropFilter: "blur(12px)",
+    ...shorthands.borderColor("var(--hairline)"),
   },
   stats: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-    gap: "18px",
+    gap: "12px",
   },
   stat: {
+    ...acrylic,
     display: "flex",
     flexDirection: "column",
     gap: "2px",
-    paddingLeft: "12px",
-    borderLeft: `3px solid ${tokens.colorBrandStroke2}`,
+    padding: "14px 16px",
+    borderRadius: tokens.borderRadiusXLarge,
   },
   statNumber: {
     fontSize: tokens.fontSizeBase500,
@@ -149,42 +244,11 @@ const useStyles = makeStyles({
   },
   statLabel: { color: tokens.colorNeutralForeground3 },
 
-  // ---- projects -----------------------------------------------------------------
-  projectGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-    gap: "24px",
-  },
-  projectCard: {
-    padding: "24px",
-    gap: "14px",
-    borderRadius: tokens.borderRadiusXLarge,
-    boxShadow: tokens.shadow8,
-    transitionProperty: "box-shadow, transform",
-    transitionDuration: tokens.durationNormal,
-    transitionTimingFunction: tokens.curveEasyEase,
-    ":hover": { boxShadow: tokens.shadow28, transform: "translateY(-2px)" },
-    "@media (prefers-reduced-motion: reduce)": { ":hover": { transform: "none" } },
-  },
-  projectIcon: {
-    width: "44px",
-    height: "44px",
-    display: "grid",
-    placeItems: "center",
-    borderRadius: tokens.borderRadiusLarge,
-    color: tokens.colorNeutralForegroundOnBrand,
-    backgroundImage: `linear-gradient(135deg, ${tokens.colorBrandBackground} 0%, #5B4BD1 100%)`,
-    boxShadow: tokens.shadow4,
-  },
-  projectDesc: { color: tokens.colorNeutralForeground2, margin: 0 },
-  tags: { display: "flex", flexWrap: "wrap", gap: "6px" },
-
-  // ---- cards ------------------------------------------------------------------
   heroCard: {
-    padding: "28px",
+    ...acrylic,
+    padding: "24px",
     gap: "16px",
-    borderRadius: tokens.borderRadiusXLarge,
-    boxShadow: tokens.shadow28,
+    borderRadius: "20px",
   },
   heroCardTop: {
     display: "flex",
@@ -195,39 +259,35 @@ const useStyles = makeStyles({
   media: {
     width: "100%",
     overflow: "hidden",
-    borderRadius: tokens.borderRadiusLarge,
-    backgroundColor: tokens.colorNeutralBackground3,
-    border: `1px solid ${tokens.colorNeutralStroke2}`,
+    borderRadius: tokens.borderRadiusXLarge,
+    backgroundColor: "var(--surface-strong)",
     "& img": { width: "100%", height: "100%", display: "block" },
   },
-  heroMedia: { height: "200px" },
+  heroMedia: { height: "210px" },
   postMedia: { height: "150px" },
-  featuredMedia: { height: "220px" },
-  videoMedia: { height: "160px", border: "none", borderRadius: 0 },
+  featuredMedia: { height: "240px" },
+  videoMedia: { height: "160px", borderRadius: 0 },
   heroTitle: {
     fontSize: tokens.fontSizeBase600,
     lineHeight: tokens.lineHeightBase600,
     fontWeight: tokens.fontWeightSemibold,
+    letterSpacing: "-0.015em",
     color: tokens.colorNeutralForeground1,
     margin: 0,
   },
-  muted: { color: tokens.colorNeutralForeground3 },
-  block: { width: "100%" },
 
-  // ---- sections --------------------------------------------------------------
-  section: { display: "grid", gap: "32px", scrollMarginTop: "24px" },
+  // ---- sections ------------------------------------------------------------------
+  section: { display: "grid", gap: "36px" },
   sectionAlt: {
-    backgroundColor: "rgba(255,255,255,0.6)",
-    padding: "48px 6vw",
+    ...acrylic,
+    padding: "56px 6vw",
     margin: "0 -6vw",
-    borderRadius: "24px",
-    border: `1px solid ${tokens.colorNeutralStroke3}`,
-    boxShadow: tokens.shadow2,
-    "@media (max-width: 640px)": { padding: "40px 5vw" },
+    borderRadius: "32px",
+    "@media (max-width: 640px)": { padding: "40px 5vw", borderRadius: "24px" },
   },
   sectionHeader: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-end",
     justifyContent: "space-between",
     gap: "24px",
     "@media (max-width: 900px)": { flexDirection: "column", alignItems: "flex-start" },
@@ -238,109 +298,168 @@ const useStyles = makeStyles({
     alignItems: "center",
     gap: "4px",
   },
+
+  // ---- projects: bento grid ------------------------------------------------------
+  projectGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
+    gap: "20px",
+    "@media (max-width: 1000px)": { gridTemplateColumns: "repeat(2, minmax(0, 1fr))" },
+    "@media (max-width: 640px)": { gridTemplateColumns: "minmax(0, 1fr)" },
+  },
+  projectWide: {
+    gridColumn: "span 3",
+    "@media (max-width: 1000px)": { gridColumn: "span 1" },
+  },
+  projectNarrow: {
+    gridColumn: "span 2",
+    "@media (max-width: 1000px)": { gridColumn: "span 1" },
+  },
+  projectLast: {
+    "@media (max-width: 1000px)": { gridColumn: "1 / -1" },
+    "@media (max-width: 640px)": { gridColumn: "auto" },
+  },
+  projectCard: {
+    ...acrylic,
+    ...lift,
+    position: "relative",
+    overflow: "hidden",
+    padding: "28px",
+    gap: "14px",
+    minHeight: "240px",
+    borderRadius: "20px",
+  },
+  projectGlow: {
+    position: "absolute",
+    top: "-80px",
+    right: "-80px",
+    width: "220px",
+    height: "220px",
+    borderRadius: "50%",
+    backgroundImage: "radial-gradient(circle, var(--glow-a) 0, transparent 70%)",
+    pointerEvents: "none",
+  },
+  projectIcon: {
+    width: "44px",
+    height: "44px",
+    display: "grid",
+    placeItems: "center",
+    borderRadius: tokens.borderRadiusXLarge,
+    color: "#fff",
+    backgroundImage: "linear-gradient(135deg, #0F6CBD 0%, #5B4BD1 100%)",
+    boxShadow: "0 6px 18px rgba(15,108,189,0.35)",
+  },
+  projectDesc: { color: tokens.colorNeutralForeground2, margin: 0, lineHeight: "1.6" },
+  projectFoot: { marginTop: "auto", paddingTop: "6px" },
+  privateBadge: { gap: "4px" },
+
+  // ---- articles -------------------------------------------------------------------
   cardGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-    gap: "24px",
+    gap: "20px",
   },
   postCard: {
-    padding: "20px",
+    ...acrylic,
+    ...lift,
+    padding: "14px 14px 20px",
     gap: "12px",
     minHeight: "260px",
-    borderRadius: tokens.borderRadiusXLarge,
+    borderRadius: "20px",
   },
-  cardBody: { display: "grid", gap: "8px", alignContent: "start", justifyItems: "start", flexGrow: 1 },
-  cardFoot: { marginTop: "auto" },
-
-  // ---- videos -----------------------------------------------------------------
-  featuredVideo: {
+  cardBody: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-    gap: "24px",
-    alignItems: "center",
-    padding: "20px",
-    borderRadius: tokens.borderRadiusXLarge,
-    boxShadow: tokens.shadow16,
+    gap: "8px",
+    alignContent: "start",
+    justifyItems: "start",
+    flexGrow: 1,
+    padding: "0 6px",
   },
-  featuredBody: { display: "grid", gap: "12px", justifyItems: "start" },
+  cardFoot: { marginTop: "auto", padding: "0 6px" },
+
+  // ---- videos -----------------------------------------------------------------------
+  featuredVideo: {
+    ...acrylic,
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+    gap: "28px",
+    alignItems: "center",
+    padding: "16px",
+    borderRadius: "24px",
+  },
+  featuredBody: { display: "grid", gap: "12px", justifyItems: "start", padding: "8px" },
   videoGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
     gap: "20px",
   },
-  videoCard: { padding: 0, gap: 0, borderRadius: tokens.borderRadiusXLarge, overflow: "hidden" },
+  videoCard: { ...acrylic, ...lift, padding: 0, gap: 0, borderRadius: "20px", overflow: "hidden" },
   videoBody: { padding: "18px", display: "grid", gap: "8px", alignContent: "start", flexGrow: 1 },
 
-  // ---- about ------------------------------------------------------------------
+  // ---- about -----------------------------------------------------------------------
   about: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-    gap: "28px",
+    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    gap: "40px",
     alignItems: "center",
   },
   aboutList: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-    gap: "16px",
-    marginTop: "24px",
+    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+    gap: "12px",
+    marginTop: "8px",
   },
-  aboutPanel: {
-    padding: "24px",
-    gap: "18px",
-    borderRadius: tokens.borderRadiusXLarge,
-    boxShadow: tokens.shadow28,
-  },
-  focusList: { listStyle: "none", margin: 0, padding: 0, display: "grid", gap: "12px" },
-  focusItem: {
-    display: "flex",
-    alignItems: "flex-start",
-    gap: "10px",
-    color: tokens.colorNeutralForeground2,
-  },
+  aboutPanel: { ...acrylic, padding: "28px", gap: "18px", borderRadius: "24px" },
+  focusList: { listStyle: "none", margin: 0, padding: 0, display: "grid", gap: "14px" },
+  focusItem: { display: "flex", alignItems: "flex-start", gap: "10px", color: tokens.colorNeutralForeground2 },
   focusIcon: {
     flexShrink: 0,
-    marginTop: "2px",
+    marginTop: "1px",
+    padding: "3px",
+    borderRadius: "50%",
     color: tokens.colorBrandForeground1,
+    backgroundColor: tokens.colorBrandBackground2,
   },
 
-  // ---- contact ------------------------------------------------------------------
+  // ---- contact ---------------------------------------------------------------------
   cta: {
+    position: "relative",
+    overflow: "hidden",
     display: "grid",
-    gap: "20px",
-    padding: "40px",
-    borderRadius: "24px",
-    color: tokens.colorNeutralForegroundOnBrand,
-    backgroundImage: `linear-gradient(135deg, ${tokens.colorBrandBackgroundPressed} 0%, ${tokens.colorBrandBackground} 60%, #3D3A9E 100%)`,
-    boxShadow: tokens.shadow28,
-    "@media (max-width: 640px)": { padding: "32px 24px" },
+    gap: "24px",
+    padding: "56px",
+    borderRadius: "32px",
+    color: "#fff",
+    backgroundImage: "var(--cta-bg)",
+    ...shorthands.border("1px", "solid", "rgba(255,255,255,0.12)"),
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18), var(--elevation)",
+    "@media (max-width: 640px)": { padding: "36px 24px", borderRadius: "24px" },
   },
-  ctaEyebrow: { color: "rgba(255,255,255,0.75)", marginBottom: "16px" },
-  ctaTitle: { color: tokens.colorNeutralForegroundOnBrand },
+  ctaEyebrow: { color: "rgba(255,255,255,0.8)", backgroundImage: "none" },
+  ctaTitle: { color: "#fff", margin: "0 0 12px" },
   ctaBody: { color: "rgba(255,255,255,0.85)", margin: 0 },
   socials: { display: "flex", flexWrap: "wrap", gap: "12px" },
   socialBtn: {
-    color: tokens.colorNeutralForegroundOnBrand,
-    ...shorthands.borderColor("rgba(255,255,255,0.5)"),
-    backgroundColor: "rgba(255,255,255,0.08)",
+    color: "#fff",
+    backgroundColor: "rgba(255,255,255,0.1)",
+    backdropFilter: "blur(8px)",
+    ...shorthands.borderColor("rgba(255,255,255,0.35)"),
     ":hover": {
-      color: tokens.colorNeutralForegroundOnBrand,
-      backgroundColor: "rgba(255,255,255,0.18)",
-      ...shorthands.borderColor(tokens.colorNeutralForegroundOnBrand),
+      color: "#fff",
+      backgroundColor: "rgba(255,255,255,0.2)",
+      ...shorthands.borderColor("rgba(255,255,255,0.7)"),
     },
-    ":hover:active": {
-      color: tokens.colorNeutralForegroundOnBrand,
-      backgroundColor: "rgba(255,255,255,0.24)",
-    },
+    ":hover:active": { color: "#fff", backgroundColor: "rgba(255,255,255,0.26)" },
   },
 
-  // ---- footer ------------------------------------------------------------------
+  // ---- footer ----------------------------------------------------------------------
   footer: {
     display: "flex",
     flexWrap: "wrap",
     justifyContent: "space-between",
     gap: "12px",
     paddingTop: "24px",
-    borderTop: `1px solid ${tokens.colorNeutralStroke2}`,
+    borderTop: "1px solid var(--hairline)",
     color: tokens.colorNeutralForeground3,
   },
 });
@@ -350,37 +469,67 @@ function Eyebrow({ children, className }: { children: React.ReactNode; className
   return <Text as="p" className={mergeClasses(s.eyebrow, className)}>{children}</Text>;
 }
 
+function HeroTitle({ className, accentClass }: { className: string; accentClass: string }) {
+  const i = hero.title.indexOf(ACCENT_PHRASE);
+  if (i < 0) return <h1 className={className}>{hero.title}</h1>;
+  return (
+    <h1 className={className}>
+      {hero.title.slice(0, i)}
+      <span className={accentClass}>{ACCENT_PHRASE}</span>
+    </h1>
+  );
+}
+
+function ThemeToggle() {
+  const { mode, toggle } = useThemeMode();
+  const label = mode === "dark" ? "Switch to light theme" : "Switch to dark theme";
+  return (
+    <Tooltip content={label} relationship="label" withArrow>
+      <Button
+        appearance="subtle"
+        shape="circular"
+        icon={mode === "dark" ? <WeatherSunny20Regular /> : <WeatherMoon20Regular />}
+        onClick={toggle}
+      />
+    </Tooltip>
+  );
+}
+
 export function Home() {
   const s = useStyles();
 
   return (
     <main className={s.page}>
+      <nav className={s.nav} aria-label="Primary">
+        <div className={s.logo}>
+          <span className={s.logoMark} aria-hidden>JR</span>
+          {site.name}
+        </div>
+        <div className={s.navLinks}>
+          {nav.map((n) => (
+            <Button key={n.href} as="a" href={n.href} appearance="subtle" shape="circular" className={s.navLink}>
+              {n.label}
+            </Button>
+          ))}
+          <ThemeToggle />
+          <Button as="a" href={navCta.href} appearance="primary" shape="circular" className={s.glowBtn}>
+            {navCta.label}
+          </Button>
+        </div>
+      </nav>
+
       {/* ------------------------------------------------------------ Hero */}
       <header className={s.hero}>
-        <nav className={s.nav} aria-label="Primary">
-          <div className={s.logo}>{site.name}</div>
-          <div className={s.navLinks}>
-            {nav.map((n) => (
-              <Button key={n.href} as="a" href={n.href} appearance="subtle" className={s.navLink}>
-                {n.label}
-              </Button>
-            ))}
-            <Button as="a" href={navCta.href} appearance="primary" shape="circular">
-              {navCta.label}
-            </Button>
-          </div>
-        </nav>
-
         <div className={s.heroContent}>
           <div>
             <Eyebrow>{hero.eyebrow}</Eyebrow>
-            <h1 className={s.h1}>{hero.title}</h1>
+            <HeroTitle className={s.h1} accentClass={s.accent} />
             <Body2 as="p" className={s.subhead}>{hero.subhead}</Body2>
             <div className={s.actions}>
-              <Button as="a" href={hero.primary.href} appearance="primary" size="large" shape="circular">
+              <Button as="a" href={hero.primary.href} appearance="primary" size="large" shape="circular" className={s.glowBtn}>
                 {hero.primary.label}
               </Button>
-              <Button as="a" href={hero.secondary.href} appearance="outline" size="large" shape="circular">
+              <Button as="a" href={hero.secondary.href} appearance="outline" size="large" shape="circular" className={s.ghostBtn}>
                 {hero.secondary.label}
               </Button>
             </div>
@@ -397,13 +546,13 @@ export function Home() {
           <Card className={s.heroCard} size="large">
             <div className={s.heroCardTop}>
               <Caption1>{featuredArticle.label}</Caption1>
-              <Badge appearance="tint" color="brand" shape="rounded">{featuredArticle.tag}</Badge>
+              <Badge appearance="tint" color="brand" shape="circular">{featuredArticle.tag}</Badge>
             </div>
             <CardPreview className={mergeClasses(s.media, s.heroMedia)}>
               <SafeImage src={featuredArticle.image} alt={featuredArticle.title} />
             </CardPreview>
             <h2 className={s.heroTitle}>{featuredArticle.title}</h2>
-            <Body1 as="p" className={s.muted} style={{ margin: 0 }}>{featuredArticle.meta}</Body1>
+            <Body1 as="p" className={s.muted}>{featuredArticle.meta}</Body1>
             <Button
               as="a"
               href={featuredArticle.href}
@@ -428,26 +577,51 @@ export function Home() {
             <Eyebrow>{projectsSection.eyebrow}</Eyebrow>
             <h2 className={s.h2}>{projectsSection.title}</h2>
           </div>
-          <Link href={projectsSection.allHref} {...ext} className={s.textLink}>
-            {projectsSection.allLabel} <ArrowRight16Regular />
-          </Link>
+          <Button
+            as="a"
+            href={projectsSection.profileHref}
+            {...ext}
+            appearance="outline"
+            shape="circular"
+            icon={<ArrowUpRight16Regular />}
+            iconPosition="after"
+            className={s.ghostBtn}
+          >
+            {projectsSection.profileLabel}
+          </Button>
         </div>
         <div className={s.projectGrid}>
-          {projects.map((p) => (
-            <Card key={p.repo} className={s.projectCard} role="article">
-              <div className={s.projectIcon} aria-hidden>
-                <Code24Filled />
-              </div>
+          {projects.map((p, i) => (
+            <Card
+              key={p.name}
+              role="article"
+              className={mergeClasses(
+                s.projectCard,
+                i < 2 ? s.projectWide : s.projectNarrow,
+                i === projects.length - 1 && s.projectLast,
+              )}
+            >
+              <span className={s.projectGlow} aria-hidden />
+              <div className={s.projectIcon} aria-hidden>{PROJECT_ICONS[p.icon]}</div>
               <h3 className={s.h3}>{p.name}</h3>
               <Body1 as="p" className={s.projectDesc}>{p.description}</Body1>
-              <div className={s.tags}>
-                {p.stack.map((t) => (
-                  <Badge key={t} appearance="outline" color="informative" shape="rounded">{t}</Badge>
-                ))}
+              <div className={s.projectFoot}>
+                {p.repo ? (
+                  <Link href={p.repo} {...ext} className={s.textLink}>
+                    {projectsSection.cta} <ArrowUpRight16Regular />
+                  </Link>
+                ) : (
+                  <Badge
+                    appearance="tint"
+                    color="informative"
+                    shape="circular"
+                    icon={<LockClosed12Regular />}
+                    className={s.privateBadge}
+                  >
+                    {p.status}
+                  </Badge>
+                )}
               </div>
-              <Link href={p.repo} {...ext} className={mergeClasses(s.textLink, s.cardFoot)}>
-                {projectsSection.cta} <ArrowUpRight16Regular />
-              </Link>
             </Card>
           ))}
         </div>
@@ -466,7 +640,7 @@ export function Home() {
         </div>
         <div className={s.cardGrid}>
           {posts.map((p) => (
-            <Card key={p.href} className={s.postCard} appearance="filled-alternative" role="article">
+            <Card key={p.href} className={s.postCard} role="article">
               <CardPreview className={mergeClasses(s.media, s.postMedia)}>
                 <SafeImage src={p.image} alt={p.title} />
               </CardPreview>
@@ -502,7 +676,7 @@ export function Home() {
           <div className={s.featuredBody}>
             <Badge appearance="tint" color="brand" shape="circular">{featuredVideo.pill}</Badge>
             <h3 className={s.h3}>{featuredVideo.title}</h3>
-            <Body1 as="p" className={s.muted} style={{ margin: 0 }}>{featuredVideo.meta}</Body1>
+            <Body1 as="p" className={s.muted}>{featuredVideo.meta}</Body1>
             <Button
               as="a"
               href={featuredVideo.href}
@@ -511,7 +685,7 @@ export function Home() {
               size="large"
               shape="circular"
               icon={<Play20Filled />}
-              className={s.block}
+              className={mergeClasses(s.block, s.glowBtn)}
             >
               {featuredVideo.cta}
             </Button>
@@ -541,7 +715,7 @@ export function Home() {
         <div className={s.about}>
           <div>
             <Eyebrow>{about.eyebrow}</Eyebrow>
-            <h2 className={s.h2}>{about.title}</h2>
+            <h2 className={s.h2} style={{ marginBottom: 16 }}>{about.title}</h2>
             <Body2 as="p" className={s.subhead}>{about.body}</Body2>
             <div className={s.aboutList}>
               {about.roles.map((r) => (
@@ -562,7 +736,14 @@ export function Home() {
                 </li>
               ))}
             </ul>
-            <Button as="a" href={about.cta.href} appearance="primary" size="large" shape="circular" className={s.block}>
+            <Button
+              as="a"
+              href={about.cta.href}
+              appearance="primary"
+              size="large"
+              shape="circular"
+              className={mergeClasses(s.block, s.glowBtn)}
+            >
               {about.cta.label}
             </Button>
           </Card>

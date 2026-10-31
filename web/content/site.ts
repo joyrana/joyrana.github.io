@@ -41,7 +41,7 @@ export const hero = {
   primary: { label: "Read Medium Articles", href: "#writing" },
   secondary: { label: "Watch YouTube Videos", href: "#videos" },
   stats: [
-    { value: "13+ years", label: "Engineering experience" },
+    { value: "14+ years", label: "Engineering experience" },
     { value: "Systems", label: "Cloud + distributed design" },
     { value: "AI/ML", label: "Research to production" },
   ],
@@ -58,43 +58,57 @@ export const featuredArticle = {
 };
 
 export const projectsSection = {
-  eyebrow: "Open-source projects",
+  eyebrow: "Portfolio projects",
   title: "Featured projects",
-  allLabel: "View all on GitHub",
-  allHref: "https://github.com/joyrana?tab=repositories",
+  profileLabel: "Visit my GitHub profile",
+  profileHref: links.github,
   cta: "View on GitHub",
 };
 
-export type Project = { name: string; repo: string; description: string; stack: string[] };
+export type Project = {
+  name: string;
+  icon: "api" | "fix" | "apps" | "sdlc" | "model";
+  description: string;
+  /** Public repository URL. Private projects have none and show `status` instead. */
+  repo?: string;
+  status?: string;
+};
 
 export const projects: Project[] = [
   {
     name: "Enterprise API Copilot",
+    icon: "api",
     repo: "https://github.com/joyrana/enterprise-api-copilot",
     description:
       "An open-source agentic AI platform for enterprise API discovery, execution, testing, troubleshooting and automation — with policy checks and human approval for write actions.",
-    stack: ["LangGraph", "MCP", "Apigee", "Spring Boot", "React", "Go CLI"],
   },
   {
     name: "FixAI Platform",
+    icon: "fix",
     repo: "https://github.com/joyrana/fixai-platform",
     description:
       "AI-powered FIX certification platform: a deterministic engine makes the pass/fail calls while AI agents help plan and diagnose broker and venue FIX sessions.",
-    stack: ["Spring Boot", "QuickFIX/J", "LangGraph", "MCP", "FastAPI", "React"],
   },
   {
     name: "Enterprise AI Application Workspace",
+    icon: "apps",
     repo: "https://github.com/joyrana/enterprise-ai-application-workspace",
     description:
       "An agentic engineering workspace that turns natural-language business requirements into specified, designed, generated, tested and validated enterprise applications.",
-    stack: ["Agentic AI", "Spec-driven", "Code generation"],
   },
   {
     name: "Agentic SDLC Workspace",
+    icon: "sdlc",
     repo: "https://github.com/joyrana/agentic-sdlc-workspace",
     description:
       "A skill-based agentic software development lifecycle workspace to design, build, test, document and continuously improve software.",
-    stack: ["React", "Fluent UI", "FastAPI", "PostgreSQL", "LangGraph"],
+  },
+  {
+    name: "Gemma SWE Agent",
+    icon: "model",
+    status: "Private · Research preview",
+    description:
+      "Post-training Gemma 4 into a repository-level software engineer — trajectory SFT, execution-ranked DPO and GRPO, measured with controlled ablations in a hardened sandbox.",
   },
 ];
 
